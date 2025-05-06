@@ -1,0 +1,59 @@
+dataset:
+  name: CIFAR10
+  root: ./data/datasets
+  batch_size: 256
+  num_workers: 4
+
+model:
+  name: resnet18
+  weights: ResNet18_Weights.DEFAULT
+  num_classes: 10
+
+preprocessing:
+  - name: to_tensor
+  # - name: normalize
+  #   mean: [0.5]
+  #   std: [0.5]
+  # - name: gaussian_blur
+  #   kernel_size: 3
+
+loss:
+  name: cross_entropy
+
+optimizer:
+  name: adam
+  lr: 0.001
+  weight_decay: 0.0001
+  scheduler: step
+  step_size: 10
+  gamma: 0.1
+
+training:
+  epochs: 1
+  batch_size: 256
+  num_workers: 4
+  seed: 42
+  device: cuda
+
+scheduler:
+   name: reduce_on_plateau
+   patience: 1
+   factor: 0.1
+
+#scheduler:
+#  name: step
+#  step_size: 10
+#  gamma: 0.1
+
+metrics:
+  - name: f1_score
+    average: weighted
+
+
+callbacks:
+#  - name: early_stopping
+#    patience: 5
+  - name: checkpoint
+    dirpath: "checkpoints/"
+    monitor: "loss" # loss es e realidad val_loss pq está harcodeado trainer.val_metrics.get(self.monitor)
+    mode: "min"

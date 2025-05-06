@@ -1,0 +1,37 @@
+dataset:
+  name: CIFAR10
+  root: ./data/datasets
+  batch_size: 64
+  num_workers: 4
+model:
+  name: resnet18
+  weights: ResNet18_Weights.DEFAULT
+  num_classes: 10
+preprocessing:
+- name: to_tensor
+loss:
+  name: cross_entropy
+optimizer:
+  name: adam
+  lr: 0.001
+  weight_decay: 0.0001
+  scheduler: step
+  step_size: 10
+  gamma: 0.1
+training:
+  epochs: 5
+  batch_size: 64
+  num_workers: 4
+  seed: 42
+  device: cuda
+scheduler:
+  name: step
+  step_size: 10
+  gamma: 0.1
+metrics:
+  name: accuracy
+callbacks:
+- name: checkpoint
+  dirpath: checkpoints/
+  monitor: loss
+  mode: min

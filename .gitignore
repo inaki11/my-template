@@ -1,0 +1,4 @@
+*.pth
+*__pycache__
+*.gz
+*cifar-10-batches-py
