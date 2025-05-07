@@ -7,8 +7,8 @@ import torch
 
 
 class ModelCheckpoint(BaseCallback):
-     # monitor = "loss" ya es validation, ya que está harcodeado trainer.val_metrics.get(self.monitor)
-    def __init__(self, dirpath, monitor="loss", mode="min"):
+    # monitor = "loss" ya es validation, ya que está harcodeado trainer.val_metrics.get(self.monitor)
+    def __init__(self, dirpath, monitor="val_loss", mode="min"):
         self.dirpath = dirpath
         self.monitor = monitor
         self.mode = mode
@@ -30,15 +30,19 @@ class ModelCheckpoint(BaseCallback):
 
             path = os.path.join(exp_dir, "best.pth")
             # Solo guardo el modelos ya que no me interesa reanudar entrenamientos, y solo guardo el mejor epoch sobre val
-            torch.save({
-                #"epoch": trainer.epoch,
-                "model_state": trainer.model.state_dict(),
-                #"optimizer_state": trainer.optimizer.state_dict(),
-                #"scheduler_state": trainer.scheduler.state_dict() if trainer.scheduler else None,
-            }, path)
-
+            torch.save(
+                {
+                    # "epoch": trainer.epoch,
+                    "model_state": trainer.model.state_dict(),
+                    # "optimizer_state": trainer.optimizer.state_dict(),
+                    # "scheduler_state": trainer.scheduler.state_dict() if trainer.scheduler else None,
+                },
+                path,
+            )
+            print(f"Mejor checkpoint guardado en {path}")
             # Guardar la configuración en el directorio de experimentos
             OmegaConf.save(trainer.config, os.path.join(exp_dir, "config.yaml"))
+
 
 def build_callback(config):
     return ModelCheckpoint(
