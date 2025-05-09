@@ -34,6 +34,7 @@ training:
   num_workers: 4
   seed: 42
   device: cuda
+  log_dir: logs
 
 #kfold:
 #  num_folds: 5
@@ -63,6 +64,15 @@ callbacks:
   - name: wandb_logger
     project: "my_project"
     entity: "inaki"
+# TO DO:   Profile uso CPU y GPU con tensorboard e integrar en wandb
+#  - name: profiler
+#    wait: 0
+#    warmup: 0
+#    active: 1
+#    repeat: 1
+#    record_shapes: True
+#    profile_memory: True
+#    with_stack: False
 
 output_logger:
   name: wandb_img_output_errors

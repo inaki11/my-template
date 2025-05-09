@@ -93,6 +93,9 @@ class BaseTrainer:
                     all_outputs.append(outputs.cpu())
                     all_targets.append(targets.cpu())
 
+                for cb in self.callbacks:
+                    cb.on_batch_end(self)
+
         avg_loss = total_loss / total_batches
 
         # Solo calcula las métricas sobre el último batch si no se están guardando todos los outputs

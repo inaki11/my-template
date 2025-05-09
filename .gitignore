@@ -5,3 +5,4 @@
 *login.json
 /wandb
 /checkpoints
+/runs
