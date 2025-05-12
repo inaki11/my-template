@@ -1,0 +1,28 @@
+program: main.py
+method: bayes           # bayes | grid | random
+metric:
+  name: Val_loss
+  goal: minimize
+
+parameters:
+  optimizer.lr:
+    distribution: uniform
+    min: 1e-5
+    max: 1e-2
+  optimizer.weight_decay:
+    distribution: uniform
+    min: 1e-6
+    max: 1e-3
+  scheduler.name:
+    values: ["steplr", "reduce_on_plateau"]
+  scheduler.step_size:
+    values: [5, 10, 20]
+  scheduler.gamma:
+    values: [0.1, 0.5]
+  training.batch_size:
+    values: [128, 256, 512]
+  preprocessing:
+    # ejemplo de buscar con o sin horizontal flip
+    values:
+      - [{name: to_tensor}, {name: random_horizontal_flip, probability: 0.5}]
+      - [{name: to_tensor}]

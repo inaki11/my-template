@@ -54,6 +54,7 @@ def get_dataloaders(config):
         batch_size=config.training.batch_size,
         shuffle=True,
         num_workers=config.training.num_workers,
+        prefetch_factor=config.training.prefech_factor,
         pin_memory=True,
     )
     if val_ds is None:
@@ -64,6 +65,7 @@ def get_dataloaders(config):
             batch_size=config.training.batch_size,
             shuffle=False,
             num_workers=config.training.num_workers,
+            prefetch_factor=config.training.prefech_factor,
             pin_memory=True,
         )
     if test_ds is None:
@@ -74,6 +76,7 @@ def get_dataloaders(config):
             batch_size=config.training.batch_size,
             shuffle=False,
             num_workers=config.training.num_workers,
+            prefetch_factor=config.training.prefech_factor,
             pin_memory=True,
         )
 

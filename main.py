@@ -15,16 +15,32 @@ from utils.get_experiment_id import get_experiment_id
 from utils.load_checkpoint import load_checkpoint
 from utils.wandb_login import wandb_login
 from utils.filter_wrong_predictions import filter_wrong_predictions
+from utils.wandb_init import wandb_init
 import torch
 import wandb
 
 
 def main(config_path):
+    # OmegaConf carga la config base
     config = OmegaConf.load(config_path)
-    seed_everything(config.training.seed)
-    config.experiment_id = get_experiment_id(config)
-
+    # init vacio para poder usar el sweep
     wandb_login()
+    wandb.init()
+
+    # sweep_cfg es la configuración del wandb sweep
+    sweep_cfg = OmegaConf.from_dotlist([f"{k}={v}" for k, v in wandb.config.items()])
+    print("Configuración del sweep:")
+    print(sweep_cfg)
+    # merge la configuración base con la del sweep
+    config = OmegaConf.merge(config, sweep_cfg)
+
+    # Configuración de la semilla
+    seed_everything(config.training.seed)
+    # creación del id de experimento
+    config.experiment_id = get_experiment_id(config)
+    # init con con reinicio y nombre de run basado en hash de la configuración sweep
+    wandb_init(config)
+
     logger = setup_logger()
     logger.info("Configuración cargada:")
     logger.info(config)
@@ -53,21 +69,11 @@ def main(config_path):
     print("Métricas de validación:")
     print(val_metrics)
 
-    label_names = [
-        "airplane",
-        "automobile",
-        "bird",
-        "cat",
-        "deer",
-        "dog",
-        "frog",
-        "horse",
-        "ship",
-        "truck",
-    ]
     inputs, outputs, targets = filter_wrong_predictions(inputs, outputs, targets)
-    output_logger = get_output_logger(config.output_logger)
-    output_logger(inputs, outputs, targets, label_names)
+
+    # if config.output_logger:
+    #    output_logger = get_output_logger(config.output_logger)
+    #    output_logger(inputs, outputs, targets, label_names)
 
     test_metrics = trainer.run_epoch(test_loader, mode="Test")
     print("Métricas de test:")
@@ -77,5 +83,6 @@ def main(config_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="configs/example.yaml")
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
+
     main(args.config)

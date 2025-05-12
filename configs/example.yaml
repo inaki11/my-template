@@ -1,21 +1,29 @@
 dataset:
   name: CIFAR10
   root: ./data/datasets
-  batch_size: 256
   num_workers: 4
+
+preprocessing:
+  - name: to_tensor
+  #- name: normalize
+  #   mean: [0.5]
+  #   std: [0.5]
+  # - name: gaussian_blur
+  #   kernel_size: 3
+  - name: random_horizontal_flip
+    probability: 0.5
+  - name: random_crop
+    padding: 4
+    size: 32
+    probability: 0.2
+
+#kfold:
+#  num_folds: 5
 
 model:
   name: resnet18
   weights: ResNet18_Weights.DEFAULT
   num_classes: 10
-
-preprocessing:
-  - name: to_tensor
-  # - name: normalize
-  #   mean: [0.5]
-  #   std: [0.5]
-  # - name: gaussian_blur
-  #   kernel_size: 3
 
 loss:
   name: cross_entropy
@@ -29,25 +37,18 @@ optimizer:
   gamma: 0.1
 
 training:
-  epochs: 1
+  epochs: 2
   batch_size: 256
   num_workers: 4
+  prefech_factor: 3
   seed: 42
   device: cuda
   log_dir: logs
-
-#kfold:
-#  num_folds: 5
 
 scheduler:
    name: reduce_on_plateau
    patience: 1
    factor: 0.1
-
-#scheduler:
-#  name: step
-#  step_size: 10
-#  gamma: 0.1
 
 metrics:
   - name: f1_score
@@ -64,16 +65,13 @@ callbacks:
   - name: wandb_logger
     project: "my_project"
     entity: "inaki"
-# TO DO:   Profile uso CPU y GPU con tensorboard e integrar en wandb
-#  - name: profiler
-#    wait: 0
-#    warmup: 0
-#    active: 1
-#    repeat: 1
-#    record_shapes: True
-#    profile_memory: True
-#    with_stack: False
 
-output_logger:
-  name: wandb_img_output_errors
+wandb:
+  project: "my_project"
+  entity: "inaki"
+  dir: "wandb"
+  
+
+#output_logger:
+#  name: wandb_img_output_errors
 
