@@ -1,4 +1,5 @@
 *.pth
+*.pt
 *__pycache__
 *.gz
 *cifar-10-batches-py
@@ -6,3 +7,4 @@
 /wandb
 /checkpoints
 /runs
+/data/datasets/

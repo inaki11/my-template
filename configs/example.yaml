@@ -1,21 +1,29 @@
 dataset:
-  name: CIFAR10
+  name: baseline-1h-1h
+  dataset_module: sacyr
   root: ./data/datasets
   num_workers: 4
+  mode: reggresion  # classification
+  kfold:
+    num_folds: 5
+    shuffle: True
 
-preprocessing:
-  - name: to_tensor
-  #- name: normalize
+scaler:
+  name: standard
+
+# preprocessing:
+  # - name: to_tensor
+  # - name: normalize
   #   mean: [0.5]
   #   std: [0.5]
   # - name: gaussian_blur
   #   kernel_size: 3
-  - name: random_horizontal_flip
-    probability: 0.5
-  - name: random_crop
-    padding: 4
-    size: 32
-    probability: 0.2
+  # - name: random_horizontal_flip
+  #   probability: 0.5
+  # - name: random_crop
+  #   padding: 4
+  #   size: 32
+  #   probability: 0.2
 
 #kfold:
 #  num_folds: 5
@@ -63,11 +71,11 @@ callbacks:
     monitor: "Val_loss" # cap-sensitive
     mode: "min"
   - name: wandb_logger
-    project: "my_project"
+    project: "sacyr"
     entity: "inaki"
 
 wandb:
-  project: "my_project"
+  project: "sacyr"
   entity: "inaki"
   dir: "wandb"
   
