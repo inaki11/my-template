@@ -18,6 +18,10 @@ class StandardScalerWrapper:
         self.X_scaler.fit(X_all)
         self.y_scaler.fit(y_all)
 
+        print("StandardScaler fitted:")
+        print(f"X mean: {self.X_scaler.mean_}, X var: {self.X_scaler.var_}")
+        print(f"y mean: {self.y_scaler.mean_}, y var: {self.y_scaler.var_}")
+
     def transform(self, data):
         scaled = []
         X_list, y_list = [], []

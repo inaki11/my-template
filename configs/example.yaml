@@ -4,12 +4,12 @@ dataset:
   root: ./data/datasets
   num_workers: 4
   mode: reggresion  # classification
-  kfold:
-    num_folds: 5
-    shuffle: True
+  # kfold:
+  #   num_folds: 5
+  #   shuffle: True
 
 scaler:
-  name: standard
+  name: quantil # standard
 
 # preprocessing:
   # - name: to_tensor
@@ -25,16 +25,28 @@ scaler:
   #   size: 32
   #   probability: 0.2
 
-#kfold:
-#  num_folds: 5
 
 model:
-  name: resnet18
-  weights: ResNet18_Weights.DEFAULT
-  num_classes: 10
+  # name: resnet18
+  # weights: ResNet18_Weights.DEFAULT
+  # num_classes: 1
+
+  # name: mlp
+  # num_layers: 3
+  # hidden_size: 512
+  # activation: relu
+  # dropout: 0.3
+
+  name: periodical_mlp
+  num_layers: 3
+  hidden_size: 512
+  dropout: 0.3
+  d_embedding: 64
+  n_frequencies: 48
+  frequency_init_scale: 5
 
 loss:
-  name: cross_entropy
+  name: mse
 
 optimizer:
   name: adam
@@ -45,10 +57,10 @@ optimizer:
   gamma: 0.1
 
 training:
-  epochs: 2
-  batch_size: 256
-  num_workers: 4
-  prefech_factor: 3
+  epochs: 100
+  batch_size: 1024
+  num_workers: 2
+  prefetch_factor: 3
   seed: 42
   device: cuda
   log_dir: logs
@@ -59,8 +71,9 @@ scheduler:
    factor: 0.1
 
 metrics:
-  - name: f1_score
-    average: weighted
+  # - name: f1_score
+  #   average: weighted
+  - name: mae
 
 
 callbacks:
@@ -73,6 +86,10 @@ callbacks:
   - name: wandb_logger
     project: "sacyr"
     entity: "inaki"
+  - name: early_stopping
+    patience: 3
+    monitor: "Val_loss"
+
 
 wandb:
   project: "sacyr"

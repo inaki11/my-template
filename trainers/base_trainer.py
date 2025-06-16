@@ -26,6 +26,7 @@ class BaseTrainer:
         self.train_metrics = {}
         self.val_metrics = {}
         self.fold = config.get("kfold.num_folds", False)
+        self.stop = False  # Flag for early stopping
 
     def train(self, train_loader, val_loader):
         for cb in self.callbacks:
@@ -56,6 +57,11 @@ class BaseTrainer:
             if self.scheduler:
                 self.scheduler.step(self)
 
+            # Stop if early stopping is triggered
+            if self.stop:
+                self.logger.info("Early stopping triggered. Stopping training.")
+                break
+
         for cb in self.callbacks:
             cb.on_train_end(self)
 
@@ -70,7 +76,9 @@ class BaseTrainer:
         all_outputs = []
         all_targets = []
 
-        pbar = tqdm(loader, desc=f"{mode} Epoch {self.epoch+1}", leave=False, ncols=100)
+        pbar = tqdm(
+            loader, desc=f"{mode} Epoch {self.epoch+1}", ncols=100, dynamic_ncols=True
+        )
 
         with torch.set_grad_enabled(training):
             for inputs, targets in pbar:

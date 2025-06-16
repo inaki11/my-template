@@ -21,7 +21,7 @@ def build_scheduler(config, optimizer):
 
         def step(self, trainer):
             # Use the validation loss metric to step the scheduler
-            val_loss = trainer.val_metrics.get("loss")
+            val_loss = trainer.val_metrics.get("Val_loss")
             if val_loss is not None:
                 self.scheduler.step(val_loss)
             else:

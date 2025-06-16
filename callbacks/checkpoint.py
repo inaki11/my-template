@@ -1,6 +1,4 @@
 import os
-import hashlib
-import json
 from .base_callbacks import BaseCallback
 from omegaconf import OmegaConf
 import torch
@@ -47,6 +45,6 @@ class ModelCheckpoint(BaseCallback):
 def build_callback(config):
     return ModelCheckpoint(
         dirpath=config.get("dirpath", "checkpoints"),
-        monitor=config.get("monitor", "val_loss"),
+        monitor=config.get("monitor", "Val_loss"),
         mode=config.get("mode", "min"),
     )

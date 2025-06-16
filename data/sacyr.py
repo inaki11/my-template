@@ -27,6 +27,9 @@ def get_dataset(config):
     test = dataset[-test_size:]
     train = dataset[:-test_size]
 
+    print(f"Sacyr dataset: {config.dataset.name}")
+    print(f"Train size: {len(train)}, Test size: {len(test)}")
+
     train_ds = CustomDataset(train)
     test_ds = CustomDataset(test)
 

@@ -27,6 +27,7 @@ def get_validation_set(train_ds, config):
     Args:
         train_data: lista de tuplas (input, target) que son tensores de PyTorch.
     """
+    train_ds_list, val_ds_list = [], []
     # Si no hay kfold, se divide en train y val
     if not config.dataset.get("kfold"):
 
@@ -43,6 +44,8 @@ def get_validation_set(train_ds, config):
             train_ds, val_ds = train_test_split(
                 train_ds, test_size=0.2, random_state=config.training.seed
             )
+        train_ds_list.append(train_ds)
+        val_ds_list.append(val_ds)
     else:
         if config.dataset.mode == "classification":
             # TO DO:  si es classify estos folds deben ser estratificados
@@ -53,7 +56,7 @@ def get_validation_set(train_ds, config):
             kfold = config.dataset.kfold.num_folds
             # Si el parametro shuffle es True, se barajan los datos de train antes de dividirlos usando una semilla
             kf = KFold(n_splits=kfold, shuffle=config.dataset.kfold.get("shuffle"), random_state=config.training.seed if config.dataset.kfold.get("shuffle") else None)
-            train_ds_list, val_ds_list = [], []
+            
             for train_index, val_index in kf.split(train_ds):
                 train_subset = Subset(train_ds, train_index)
                 val_subset = Subset(train_ds, val_index)
@@ -94,11 +97,11 @@ def apply_scaler(train_set, test_set, config, debug=False):
     test_set_scaled = scaler.transform(test_set)
     if debug:
         print("antes de aplicar el escalador:")
-        print("train_set:", train_set[:5])
-        print("test_set:", test_set[:5])
+        print("train_set:", train_set[0])
+        print("test_set:", test_set[0])
         print("después de aplicar el escalador:")
-        print("train_set_scaled:", train_set_scaled[:5])
-        print("test_set_scaled:", test_set_scaled[:5])
+        print("train_set_scaled:", train_set_scaled[0])
+        print("test_set_scaled:", test_set_scaled[0])
     return train_set_scaled, test_set_scaled, scaler
 
     
@@ -110,7 +113,6 @@ def add_transforms(train_ds, val_ds, test_ds, config):
     sino que se ejecutan cuando accedes a un ítem, es decir, dentro del __getitem__() del Dataset.
 
     Para que esto funcione, debe guardarse en el atributo 'transform' del dataset la transformacion o collate de transformaciones.
-
     """
     train_tfms, val_tfms, test_tfms = None, None, None
 
@@ -152,7 +154,7 @@ def get_dataloaders(train_ds, val_ds, test_ds, config):
         batch_size=config.training.batch_size,
         shuffle=True,
         num_workers=config.training.num_workers,
-        prefetch_factor=config.training.prefech_factor,
+        prefetch_factor=config.training.prefetch_factor,
         pin_memory=True,
     )
     if val_ds is None:
@@ -163,7 +165,7 @@ def get_dataloaders(train_ds, val_ds, test_ds, config):
             batch_size=config.training.batch_size,
             shuffle=False,
             num_workers=config.training.num_workers,
-            prefetch_factor=config.training.prefech_factor,
+            prefetch_factor=config.training.prefetch_factor,
             pin_memory=True,
         )
     if test_ds is None:
@@ -174,7 +176,7 @@ def get_dataloaders(train_ds, val_ds, test_ds, config):
             batch_size=config.training.batch_size,
             shuffle=False,
             num_workers=config.training.num_workers,
-            prefetch_factor=config.training.prefech_factor,
+            prefetch_factor=config.training.prefetch_factor,
             pin_memory=True,
         )
 

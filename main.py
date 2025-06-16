@@ -19,6 +19,9 @@ from utils.filter_wrong_predictions import filter_wrong_predictions
 from utils.wandb_init import wandb_init
 import torch
 import wandb
+import os
+
+os.environ["PYTHONUNBUFFERED"] = "1"
 
 
 def main(config_path):
@@ -50,17 +53,33 @@ def main(config_path):
         device = "cuda" if torch.cuda.is_available() else "cpu"
         config.training.device = device
 
+    print(f"Utilizando device: {device}")
+
     train_set, test_set = load_train_test_set(config)
-    train_set_scaled, test_set_scaled, scaler = apply_scaler(train_set, test_set, config, debug=True)  # Aplica el escalador si es necesario
-    train_splits, val_splits = get_validation_set(train_set_scaled, config) # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
-    
+    input_size, output_size = train_set[0][0].shape[0], train_set[0][1].shape[0]
+    logger.info(f"Input size: {input_size}, Output size: {output_size}")
+
+    train_set_scaled, test_set_scaled, scaler = apply_scaler(
+        train_set, test_set, config, debug=True
+    )  # Aplica el escalador si es necesario
+    train_splits, val_splits = get_validation_set(
+        train_set_scaled, config
+    )  # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
+
+    val_losses, test_losses = [], []
     for i, (train_fold, val_fold) in enumerate(zip(train_splits, val_splits)):
         print(f"Entrenando fold {i + 1}/{len(train_splits)}")
 
-        train_ds, val_ds, test_ds = get_dataset(train_fold, val_fold, test_set_scaled, config)
-        train_loader, val_loader, test_loader = get_dataloaders(train_ds, val_ds, test_ds, config)
+        train_ds, val_ds, test_ds = get_dataset(
+            train_fold, val_fold, test_set_scaled, config
+        )
+        train_loader, val_loader, test_loader = get_dataloaders(
+            train_ds, val_ds, test_ds, config
+        )
 
-        model = get_model(config.model).to(config.training.device)
+        model = get_model(input_size, output_size, config.model).to(
+            config.training.device
+        )
         criterion = get_loss(config.loss)
         optimizer = get_optimizer(config.optimizer, model.parameters())
         scheduler = get_scheduler(config.scheduler, optimizer)
@@ -78,8 +97,10 @@ def main(config_path):
         )
         print("Métricas de validación:")
         print(val_metrics)
+        # Acumulamos Val Loss
+        val_losses.append(val_metrics["Val_loss"])
 
-        inputs, outputs, targets = filter_wrong_predictions(inputs, outputs, targets)
+        # inputs, outputs, targets = filter_wrong_predictions(inputs, outputs, targets)
 
         # if config.output_logger:
         #    output_logger = get_output_logger(config.output_logger)
@@ -88,6 +109,17 @@ def main(config_path):
         test_metrics = trainer.run_epoch(test_loader, mode="Test")
         print("Métricas de test:")
         print(test_metrics)
+        # Acumulamos Test Loss
+        test_losses.append(test_metrics["Test_loss"])
+
+    # Final del k-fold loggueamos las loss medias para optimizar la búsqueda de hiperparámetros
+    if getattr(config.dataset, "kfold", False):
+        logger.info("K-Fold Training Complete, calculating mean losses.")
+        val_loss_mean = sum(val_losses) / len(val_losses)
+        test_loss_mean = sum(test_losses) / len(test_losses)
+        logger.info(f"Val Loss Mean: {val_loss_mean}")
+        logger.info(f"Test Loss Mean: {test_loss_mean}")
+        wandb.log({"Val_loss_mean": val_loss_mean, "Test_loss_mean": test_loss_mean})
 
 
 if __name__ == "__main__":

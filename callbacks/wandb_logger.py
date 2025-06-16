@@ -1,8 +1,5 @@
 import wandb
-import json
-import os
 from .base_callbacks import BaseCallback
-from omegaconf import OmegaConf
 
 
 class WandbLogger(BaseCallback):
