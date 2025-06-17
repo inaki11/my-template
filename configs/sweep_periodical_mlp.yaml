@@ -1,0 +1,39 @@
+program: main.py
+method: bayes
+metric:
+  name: Val_loss_mean
+  goal: minimize
+
+parameters:
+  model.name:
+    values: ["periodical_mlp"]
+
+  scaler.name:
+    values: ["quantil", "standard"]
+
+  model.num_layers:
+    min: 1
+    max: 5
+    distribution: int_uniform
+
+  model.hidden_size:
+    min: 128
+    max: 1024
+    distribution: int_uniform
+
+  model.dropout:
+    min: 0.1
+    max: 0.5
+
+  model.n_frequencies:
+    min: 16
+    max: 64
+    distribution: int_uniform
+
+  model.frequency_init_scale:
+    values: [0.05, 0.2, 0.5, 1, 5]
+
+  model.d_embedding:
+    min: 32
+    max: 256
+    distribution: int_uniform

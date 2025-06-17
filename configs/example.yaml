@@ -4,46 +4,27 @@ dataset:
   root: ./data/datasets
   num_workers: 4
   mode: reggresion  # classification
-  # kfold:
-  #   num_folds: 5
-  #   shuffle: True
+  kfold:
+    num_folds: 5
+    shuffle: True
 
 scaler:
   name: quantil # standard
 
-# preprocessing:
-  # - name: to_tensor
-  # - name: normalize
-  #   mean: [0.5]
-  #   std: [0.5]
-  # - name: gaussian_blur
-  #   kernel_size: 3
-  # - name: random_horizontal_flip
-  #   probability: 0.5
-  # - name: random_crop
-  #   padding: 4
-  #   size: 32
-  #   probability: 0.2
+# model:
+#   # name: mlp
+#   # num_layers: 3
+#   # hidden_size: 512
+#   # activation: relu
+#   # dropout: 0.3
 
-
-model:
-  # name: resnet18
-  # weights: ResNet18_Weights.DEFAULT
-  # num_classes: 1
-
-  # name: mlp
-  # num_layers: 3
-  # hidden_size: 512
-  # activation: relu
-  # dropout: 0.3
-
-  name: periodical_mlp
-  num_layers: 3
-  hidden_size: 512
-  dropout: 0.3
-  d_embedding: 64
-  n_frequencies: 48
-  frequency_init_scale: 5
+#   name: periodical_mlp
+#   num_layers: 3
+#   hidden_size: 512
+#   dropout: 0.3
+#   d_embedding: 64
+#   n_frequencies: 48
+#   frequency_init_scale: 5
 
 loss:
   name: mse
@@ -57,7 +38,7 @@ optimizer:
   gamma: 0.1
 
 training:
-  epochs: 100
+  epochs: 5
   batch_size: 1024
   num_workers: 2
   prefetch_factor: 3
@@ -71,14 +52,10 @@ scheduler:
    factor: 0.1
 
 metrics:
-  # - name: f1_score
-  #   average: weighted
   - name: mae
 
 
 callbacks:
-#  - name: early_stopping
-#    patience: 5
   - name: checkpoint
     dirpath: "checkpoints/"
     monitor: "Val_loss" # cap-sensitive
@@ -87,7 +64,7 @@ callbacks:
     project: "sacyr"
     entity: "inaki"
   - name: early_stopping
-    patience: 3
+    patience: 15
     monitor: "Val_loss"
 
 
@@ -95,8 +72,3 @@ wandb:
   project: "sacyr"
   entity: "inaki"
   dir: "wandb"
-  
-
-#output_logger:
-#  name: wandb_img_output_errors
-

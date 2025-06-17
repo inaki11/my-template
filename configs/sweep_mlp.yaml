@@ -1,0 +1,26 @@
+program: main.py
+method: bayes
+metric:
+  name: Val_loss_mean
+  goal: minimize
+
+parameters:
+  model.name:
+    values: ["mlp"]
+
+  scaler.name:
+    values: ["quantil", "standard"]
+
+  model.num_layers:
+    min: 1
+    max: 5
+    distribution: int_uniform
+
+  model.hidden_size:
+    min: 128
+    max: 1024
+    distribution: int_uniform
+
+  model.dropout:
+    min: 0.1
+    max: 0.5

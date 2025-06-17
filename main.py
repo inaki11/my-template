@@ -21,8 +21,6 @@ import torch
 import wandb
 import os
 
-os.environ["PYTHONUNBUFFERED"] = "1"
-
 
 def main(config_path):
     # OmegaConf carga la config base
@@ -120,6 +118,9 @@ def main(config_path):
         logger.info(f"Val Loss Mean: {val_loss_mean}")
         logger.info(f"Test Loss Mean: {test_loss_mean}")
         wandb.log({"Val_loss_mean": val_loss_mean, "Test_loss_mean": test_loss_mean})
+    else:
+        logger.info("Training Complete, logging final losses.")
+        wandb.log({"Val_loss_mean": val_losses[0], "Test_loss_mean": test_losses[0]})
 
 
 if __name__ == "__main__":
