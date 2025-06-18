@@ -52,6 +52,9 @@ def main(config_path):
 
     print(f"Utilizando device: {device}")
 
+    # init wandb, Una run por cada conjunto de folds, ya que sweeps no me deja hacer varios inits en la misma run.
+    wandb_init(config)
+
     train_set, test_set = load_train_test_set(config)
     input_size, output_size = train_set[0][0].shape[0], train_set[0][1].shape[0]
     logger.info(f"Input size: {input_size}, Output size: {output_size}")
@@ -68,9 +71,6 @@ def main(config_path):
         print(
             f"-------------------------------\n Entrenando fold {fold + 1}/{len(train_splits)} \n -------------------------------"
         )
-
-        # init con con reinicio y nombre de run basado en hash y fold
-        wandb_init(config, fold)
 
         train_ds, val_ds, test_ds = get_dataset(
             train_fold, val_fold, test_set_scaled, config
@@ -119,6 +119,8 @@ def main(config_path):
     else:
         logger.info("Training Complete, logging final losses.")
         wandb.log({"Val_loss_mean": val_losses[0], "Test_loss_mean": test_losses[0]})
+
+    wandb.finish()
 
 
 if __name__ == "__main__":

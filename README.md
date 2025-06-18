@@ -2,6 +2,12 @@
 
 Sigue estos pasos para lanzar y ejecutar un sweep en wandb:
 
+0. **Dependencias**
+
+```python
+pip install wandb scikit-learn tqdm tensorboard rtdl_num_embeddings omegaconf holidays
+```
+
 1. **Crear el sweep:**
 activa el entorno de conda y situate en la raiz del repositorio
 
@@ -27,3 +33,4 @@ En el siguinte ejemplo se establecen 100 ejecuciones del espacio de búsqueda, p
 ```python
 python run_sweep.py --config configs/sweep_periodical_mlp.yaml --total-runs 100 --processes 2
 ```
+

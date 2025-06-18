@@ -6,7 +6,7 @@ class WandbLogger(BaseCallback):
 
     def on_validation_end(self, trainer):
         epoch_info = {key: float(value) for key, value in trainer.epoch_info.items()}
-        wandb.log(epoch_info)
+        wandb.log(epoch_info, step=trainer.epoch)
 
     def on_train_end(self, trainer):
         # wandb.finish()
