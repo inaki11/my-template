@@ -4,7 +4,7 @@ import wandb
 
 
 def wandb_init(config):
-
+    print("Run name:", config.experiment_id)
     wandb.init(
         # reinit=True,
         project=config.wandb.project,
