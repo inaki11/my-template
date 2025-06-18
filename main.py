@@ -40,8 +40,6 @@ def main(config_path):
     seed_everything(config.training.seed)
     # creación del id de experimento
     config.experiment_id = get_experiment_id(config)
-    # init con con reinicio y nombre de run basado en hash de la configuración sweep
-    wandb_init(config)
 
     logger = setup_logger()
     logger.info("Configuración cargada:")
@@ -50,6 +48,7 @@ def main(config_path):
     if config.training.device == "cuda":
         device = "cuda" if torch.cuda.is_available() else "cpu"
         config.training.device = device
+    device = config.training.device
 
     print(f"Utilizando device: {device}")
 
@@ -65,8 +64,13 @@ def main(config_path):
     )  # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
 
     val_losses, test_losses = [], []
-    for i, (train_fold, val_fold) in enumerate(zip(train_splits, val_splits)):
-        print(f"Entrenando fold {i + 1}/{len(train_splits)}")
+    for fold, (train_fold, val_fold) in enumerate(zip(train_splits, val_splits)):
+        print(
+            f"-------------------------------\n Entrenando fold {fold + 1}/{len(train_splits)} \n -------------------------------"
+        )
+
+        # init con con reinicio y nombre de run basado en hash y fold
+        wandb_init(config, fold)
 
         train_ds, val_ds, test_ds = get_dataset(
             train_fold, val_fold, test_set_scaled, config
@@ -98,12 +102,6 @@ def main(config_path):
         # Acumulamos Val Loss
         val_losses.append(val_metrics["Val_loss"])
 
-        # inputs, outputs, targets = filter_wrong_predictions(inputs, outputs, targets)
-
-        # if config.output_logger:
-        #    output_logger = get_output_logger(config.output_logger)
-        #    output_logger(inputs, outputs, targets, label_names)
-
         test_metrics = trainer.run_epoch(test_loader, mode="Test")
         print("Métricas de test:")
         print(test_metrics)
@@ -125,7 +123,7 @@ def main(config_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", type=str, default="configs/example.yaml")
+    parser.add_argument("--config", type=str, default="configs/base.yaml")
     args, _ = parser.parse_known_args()
 
     main(args.config)

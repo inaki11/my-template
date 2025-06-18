@@ -3,11 +3,10 @@ from omegaconf import OmegaConf
 import wandb
 
 
-def wandb_init(config):
+def wandb_init(config, fold):
     # if config.kfold is a key:
-    if hasattr(config, "kfold") and config.kfold is not None:
-        fold = getattr(config.kfold, "fold", 1)
-        run_name = f"{config.experiment_id}_fold{fold}"
+    if fold is not None:
+        run_name = f"{config.experiment_id}_fold_{fold}"
     else:
         run_name = config.experiment_id
 
@@ -20,5 +19,5 @@ def wandb_init(config):
         entity=config.wandb.entity,
         name=run_name,
         group=config.experiment_id,
-        sync_tensorboard=True,
+        # sync_tensorboard=True,
     )

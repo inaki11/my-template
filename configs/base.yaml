@@ -43,7 +43,7 @@ training:
   num_workers: 2
   prefetch_factor: 3
   seed: 42
-  device: cuda
+  device: cpu
   log_dir: logs
 
 scheduler:
