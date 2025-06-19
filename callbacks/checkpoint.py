@@ -23,7 +23,7 @@ class ModelCheckpoint(BaseCallback):
         if is_better:
             self.best = current
             exp_id = trainer.config.get("experiment_id", "default_experiment")
-            exp_dir = os.path.join(self.dirpath, exp_id)
+            exp_dir = os.path.join(self.dirpath, exp_id + f"_{trainer.fold}")
             os.makedirs(exp_dir, exist_ok=True)
 
             path = os.path.join(exp_dir, "best.pth")
