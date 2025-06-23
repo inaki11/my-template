@@ -65,7 +65,7 @@ def main(config_path):
         train_set_scaled, config
     )  # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
 
-    val_metrics, test_metrics = {}, {}
+    folds_val_metrics, folds_test_metrics = {}, {}
     for fold, (train_fold, val_fold) in enumerate(zip(train_splits, val_splits)):
         print(
             f"-------------------------------\n Entrenando fold {fold + 1}/{len(train_splits)} \n -------------------------------"
@@ -109,7 +109,9 @@ def main(config_path):
 
         # Acumulamos metricas de validación
         for key, value in val_metrics.items():
-            val_metrics[key] += [value]
+            if key not in folds_val_metrics:
+                folds_val_metrics[key] = []
+            folds_val_metrics[key].append(value)
 
         test_metrics = trainer.run_epoch(test_loader, mode="Test")
         print("Métricas de test:")
@@ -117,9 +119,9 @@ def main(config_path):
 
         # Acumulamos metricas de Test
         for key, value in test_metrics.items():
-            if key not in test_metrics:
-                test_metrics[key] = []
-            test_metrics[key].append(value)
+            if key not in folds_test_metrics:
+                folds_test_metrics[key] = []
+            folds_test_metrics[key].append(value)
 
     # Final del k-fold loggueamos las loss medias para optimizar la búsqueda de hiperparámetros
     if getattr(config.dataset, "kfold", False):
