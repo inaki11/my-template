@@ -65,7 +65,7 @@ def main(config_path):
         train_set_scaled, config
     )  # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
 
-    val_losses, test_losses = [], []
+    val_metrics, test_metrics = {}, {}
     for fold, (train_fold, val_fold) in enumerate(zip(train_splits, val_splits)):
         print(
             f"-------------------------------\n Entrenando fold {fold + 1}/{len(train_splits)} \n -------------------------------"
@@ -88,7 +88,15 @@ def main(config_path):
         metrics = get_metrics(config.metrics)
 
         trainer = BaseTrainer(
-            model, criterion, optimizer, scheduler, config, logger, fold, callbacks, metrics
+            model,
+            criterion,
+            optimizer,
+            scheduler,
+            config,
+            logger,
+            fold,
+            callbacks,
+            metrics,
         )
         trainer.train(train_loader, val_loader)
 
@@ -98,26 +106,41 @@ def main(config_path):
         )
         print("Métricas de validación:")
         print(val_metrics)
-        # Acumulamos Val Loss
-        val_losses.append(val_metrics["Val_loss"])
+
+        # Acumulamos metricas de validación
+        for key, value in val_metrics.items():
+            val_metrics[key] += [value]
 
         test_metrics = trainer.run_epoch(test_loader, mode="Test")
         print("Métricas de test:")
         print(test_metrics)
-        # Acumulamos Test Loss
-        test_losses.append(test_metrics["Test_loss"])
+
+        # Acumulamos metricas de Test
+        for key, value in test_metrics.items():
+            if key not in test_metrics:
+                test_metrics[key] = []
+            test_metrics[key].append(value)
 
     # Final del k-fold loggueamos las loss medias para optimizar la búsqueda de hiperparámetros
     if getattr(config.dataset, "kfold", False):
-        logger.info("K-Fold Training Complete, calculating mean losses.")
-        val_loss_mean = sum(val_losses) / len(val_losses)
-        test_loss_mean = sum(test_losses) / len(test_losses)
-        logger.info(f"Val Loss Mean: {val_loss_mean}")
-        logger.info(f"Test Loss Mean: {test_loss_mean}")
-        wandb.log({"Val_loss_mean": val_loss_mean, "Test_loss_mean": test_loss_mean})
+        logger.info("K-Fold Training Complete, calculating mean metrics.")
+
+        # Log the mean metrics for k-fold
+        for key in val_metrics.keys():
+            metric_mean = sum(val_metrics[key]) / len(val_metrics[key])
+            logger.info(f"Val_Mean_{key}: {metric_mean:.4f}")
+            wandb.log({f"Val_Mean_{key}": metric_mean})
+        for key in test_metrics.keys():
+            metric_mean = sum(test_metrics[key]) / len(test_metrics[key])
+            logger.info(f"Test_Mean_{key}: {metric_mean:.4f}")
+            wandb.log({f"Test_Mean_{key}": metric_mean})
+
     else:
         logger.info("Training Complete, logging final losses.")
-        wandb.log({"Val_loss_mean": val_losses[0], "Test_loss_mean": test_losses[0]})
+        for key, value in val_metrics.items():
+            wandb.log({f"Val_{key}": value[0]})
+        for key, value in test_metrics.items():
+            wandb.log({f"Test_{key}": value[0]})
 
     wandb.finish()
 
