@@ -1,5 +1,4 @@
 dataset:
-  name: baseline-1h-1h
   dataset_module: sacyr
   root: ./data/datasets
   num_workers: 4

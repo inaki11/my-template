@@ -5,6 +5,9 @@ metric:
   goal: minimize
 
 parameters:
+  dataset.name:
+    values: ["baseline-1h-1h"]
+    
   model.name:
     values: ["mlp"]
 

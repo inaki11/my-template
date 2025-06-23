@@ -31,6 +31,6 @@ Esto ejecutará hasta 5 runs del sweep especificado. Cada run buscará en un con
 Automaticamente crea N agentes que en paralelo se dividen las ejecuciones dadas. 
 En el siguinte ejemplo se establecen 100 ejecuciones del espacio de búsqueda, paralelizado en 5 agentes, para MLP + embedding periódico.
 ```python
-python run_sweep.py --config configs/sweep_periodical_mlp.yaml --total-runs 100 --processes 2
+python run_sweep.py --config configs/sweep_periodical_mlp.yaml --total-runs 100 --processes 1
 ```
 

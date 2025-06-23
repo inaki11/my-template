@@ -8,3 +8,4 @@
 /checkpoints
 /runs
 /data/datasets/
+*.ipynb_checkpoints*
