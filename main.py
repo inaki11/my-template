@@ -127,13 +127,15 @@ def main(config_path):
     if getattr(config.dataset, "kfold", False):
         logger.info("K-Fold Training Complete, calculating mean metrics.")
 
+        print(folds_val_metrics)
+        print(folds_test_metrics)
         # Log the mean metrics for k-fold
         for key in val_metrics.keys():
-            metric_mean = sum(val_metrics[key]) / len(val_metrics[key])
+            metric_mean = sum(folds_val_metrics[key]) / len(folds_val_metrics[key])
             logger.info(f"Val_Mean_{key}: {metric_mean:.4f}")
             wandb.log({f"Val_Mean_{key}": metric_mean})
         for key in test_metrics.keys():
-            metric_mean = sum(test_metrics[key]) / len(test_metrics[key])
+            metric_mean = sum(folds_test_metrics[key]) / len(folds_test_metrics[key])
             logger.info(f"Test_Mean_{key}: {metric_mean:.4f}")
             wandb.log({f"Test_Mean_{key}": metric_mean})
 
