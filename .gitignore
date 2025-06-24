@@ -9,3 +9,4 @@
 /runs
 /data/datasets/
 *.ipynb_checkpoints*
+.env
