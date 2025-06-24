@@ -47,7 +47,7 @@ def main(config_path):
 
     # print visible GPUs
     print("--------------   GPU  --------------------")
-    print("CUDA_VISIBLE_DEVICES: " + os.environ.get("CUDA_VISIBLE_DEVICES"))
+    print(f"CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES')}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Utilizando device: {device}")
 

@@ -6,7 +6,7 @@ metric:
 
 parameters:
   dataset.name:
-    values: ["baseline-1h-1h"]
+    values: ["baseline-1h-3h"]
     
   model.name:
     values: ["periodical_mlp"]

@@ -33,4 +33,3 @@ En el siguinte ejemplo se establecen 100 ejecuciones del espacio de búsqueda, p
 ```python
 python run_sweep.py --config configs/sweep_periodical_mlp.yaml --total-runs 100 --processes 1
 ```
-

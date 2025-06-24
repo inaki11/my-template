@@ -51,8 +51,8 @@ scheduler:
    factor: 0.1
 
 metrics:
-  - name: mae
-
+  - name: mae-sacyr-1h
+    prediction_horizon: 3
 
 callbacks:
   - name: checkpoint
@@ -65,7 +65,6 @@ callbacks:
   - name: early_stopping
     patience: 15
     monitor: "Val_loss"
-
 
 wandb:
   project: "sacyr"
