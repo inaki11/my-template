@@ -127,6 +127,8 @@ def main(config_path):
     if getattr(config.dataset, "kfold", False):
         logger.info("K-Fold Training Complete, calculating mean metrics.")
 
+        print(folds_val_metrics)
+        print(folds_test_metrics)
         # Log the mean metrics for k-fold
         for key in val_metrics.keys():
             metric_mean = sum(val_metrics[key]) / len(val_metrics[key])
