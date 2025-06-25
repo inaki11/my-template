@@ -20,9 +20,12 @@ def build_metric(config=None, debug=False):
         # filter prediction_horizon columns
         len_y = y_pred.shape[1]
         target_columns = list(range(0, len_y, prediction_horizon))
-        print(
-            f"MAE-sacyr-1h: len_y: {len_y},   prediction_horizon: {prediction_horizon},   target_columns: {target_columns} "
-        )
+
+        if debug:
+            print(
+                f"MAE-sacyr-1h: len_y: {len_y},   prediction_horizon: {prediction_horizon},   target_columns: {target_columns} "
+            )
+
         y_pred = y_pred[:, target_columns]
         y_true = y_true[:, target_columns]
         assert (
