@@ -130,20 +130,21 @@ def main(config_path):
         print(folds_val_metrics)
         print(folds_test_metrics)
         # Log the mean metrics for k-fold
-        for key in val_metrics.keys():
-            metric_mean = sum(val_metrics[key]) / len(val_metrics[key])
+
+        for key in folds_val_metrics.keys():
+            metric_mean = sum(folds_val_metrics[key]) / len(folds_val_metrics[key])
             logger.info(f"Mean_{key}: {metric_mean:.4f}")
             wandb.log({f"Mean_{key}": metric_mean})
         for key in test_metrics.keys():
-            metric_mean = sum(test_metrics[key]) / len(test_metrics[key])
+            metric_mean = sum(folds_test_metrics[key]) / len(folds_test_metrics[key])
             logger.info(f"Mean_{key}: {metric_mean:.4f}")
             wandb.log({f"Mean_{key}": metric_mean})
 
     else:
         logger.info("Training Complete, logging final losses.")
-        for key, value in val_metrics.items():
+        for key, value in folds_val_metrics.items():
             wandb.log({f"{key}": value[0]})
-        for key, value in test_metrics.items():
+        for key, value in folds_test_metrics.items():
             wandb.log({f"{key}": value[0]})
 
     wandb.finish()
