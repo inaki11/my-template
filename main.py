@@ -22,7 +22,9 @@ from utils.get_experiment_id import get_experiment_id
 from utils.load_checkpoint import load_checkpoint
 from utils.wandb_login import wandb_login
 from utils.wandb_init import wandb_init
-from utils import plot_inverse_transformed_outputs_and_mae
+from utils.plot_inverse_transformed_outputs_and_mae import (
+    plot_inverse_transformed_outputs_and_mae,
+)
 import torch
 import wandb
 import os
@@ -128,7 +130,8 @@ def main(config_path):
         targets = inverse_scaler(targets, scaler)
 
         # hacemos plot de las predicciones y los targets, asi como feedback adicional como el MAE
-        plot_inverse_transformed_outputs_and_mae(outputs, targets)
+        if config.get("wandb", {}).get("log_plots", False):
+            plot_inverse_transformed_outputs_and_mae(outputs, targets, fold)
 
         # Acumulamos metricas de Test
         for key, value in test_metrics.items():
