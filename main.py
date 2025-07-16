@@ -1,7 +1,13 @@
 from omegaconf import OmegaConf
 import argparse
 from models import get_model
-from data import apply_scaler, get_validation_set, get_dataset, get_dataloaders
+from data import (
+    apply_scaler,
+    inverse_scaler,
+    get_validation_set,
+    get_dataset,
+    get_dataloaders,
+)
 from data.registry import load_train_test_set
 from optimizers import get_optimizer
 from losses import get_loss
@@ -15,8 +21,8 @@ from utils.seed import seed_everything
 from utils.get_experiment_id import get_experiment_id
 from utils.load_checkpoint import load_checkpoint
 from utils.wandb_login import wandb_login
-from utils.filter_wrong_predictions import filter_wrong_predictions
 from utils.wandb_init import wandb_init
+from utils import plot_inverse_transformed_outputs_and_mae
 import torch
 import wandb
 import os
@@ -113,9 +119,16 @@ def main(config_path):
                 folds_val_metrics[key] = []
             folds_val_metrics[key].append(value)
 
-        test_metrics = trainer.run_epoch(test_loader, mode="Test")
-        print("Métricas de test:")
-        print(test_metrics)
+        test_metrics, inputs, outputs, targets = trainer.run_epoch(
+            test_loader, mode="Test", return_preds=True
+        )
+
+        # Desescalamos las predicciones y los targets
+        outputs = inverse_scaler(outputs, scaler)
+        targets = inverse_scaler(targets, scaler)
+
+        # hacemos plot de las predicciones y los targets, asi como feedback adicional como el MAE
+        plot_inverse_transformed_outputs_and_mae(outputs, targets)
 
         # Acumulamos metricas de Test
         for key, value in test_metrics.items():

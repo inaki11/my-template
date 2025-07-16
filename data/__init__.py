@@ -7,9 +7,10 @@ from torch.utils.data import DataLoader, Subset, Dataset
 
 from sklearn.model_selection import train_test_split, KFold
 
+
 def get_validation_set(train_ds, config):
     """
-    Divide el dattaser en base a la configuración. Si el yaml tiene 'kfold' se divide en k folds, 
+    Divide el dattaser en base a la configuración. Si el yaml tiene 'kfold' se divide en k folds,
     si no, se divide en train y val, reservando un 20% del train.
     Si la configuración del dataset tiene el modo 'classification', se dividen train y val de forma estratificada.
 
@@ -37,7 +38,7 @@ def get_validation_set(train_ds, config):
             train_ds, val_ds = train_test_split(
                 train_ds,
                 test_size=0.2,
-                stratify=targets, # TO DO (targets no es nada)
+                stratify=targets,  # TO DO (targets no es nada)
                 random_state=config.training.seed,
             )
         else:
@@ -52,11 +53,19 @@ def get_validation_set(train_ds, config):
             print("TO DO:  si es classify estos folds deben ser estratificados")
             pass
         else:
-            # Si hay kfold, se divide en k folds, 
+            # Si hay kfold, se divide en k folds,
             kfold = config.dataset.kfold.num_folds
             # Si el parametro shuffle es True, se barajan los datos de train antes de dividirlos usando una semilla
-            kf = KFold(n_splits=kfold, shuffle=config.dataset.kfold.get("shuffle"), random_state=config.training.seed if config.dataset.kfold.get("shuffle") else None)
-            
+            kf = KFold(
+                n_splits=kfold,
+                shuffle=config.dataset.kfold.get("shuffle"),
+                random_state=(
+                    config.training.seed
+                    if config.dataset.kfold.get("shuffle")
+                    else None
+                ),
+            )
+
             for train_index, val_index in kf.split(train_ds):
                 train_subset = Subset(train_ds, train_index)
                 val_subset = Subset(train_ds, val_index)
@@ -64,9 +73,10 @@ def get_validation_set(train_ds, config):
                 val_ds_list.append(val_subset)
     return train_ds_list, val_ds_list
 
+
 class CustomDataset(Dataset):
     def __init__(self, samples, transform=None):
-        self.samples   = samples
+        self.samples = samples
         self.transform = transform
 
     def __len__(self):
@@ -78,19 +88,23 @@ class CustomDataset(Dataset):
         if self.transform is not None:
             x = self.transform(x)
         return x, y
-         
+
+
 def get_dataset(train_ds, val_ds, test_ds, config):
 
     return (
         CustomDataset(train_ds, transform=None),
         CustomDataset(val_ds, transform=None),
-        CustomDataset(test_ds, transform=None)
+        CustomDataset(test_ds, transform=None),
     )
+
 
 def apply_scaler(train_set, test_set, config, debug=False):
     scaler = get_scaler(config.scaler)
     if scaler is None:
-        print("No se ha especificado un escalador. No se aplicará ninguna transformación.")
+        print(
+            "No se ha especificado un escalador. No se aplicará ninguna transformación."
+        )
         return train_set
     scaler.fit(train_set)
     train_set_scaled = scaler.transform(train_set)
@@ -104,7 +118,23 @@ def apply_scaler(train_set, test_set, config, debug=False):
         print("test_set_scaled:", test_set_scaled[0])
     return train_set_scaled, test_set_scaled, scaler
 
-    
+
+def inverse_scaler(scaled_data, scaler):
+    """
+    Devuelve los datos a su escala original usando el método inverse_transform del escalador.
+    Args:
+        scaled_data: Datos escalados (array, lista o tensor compatible con el scaler).
+        scaler: Objeto scaler que ha sido ajustado previamente.
+    Returns:
+        Datos en su escala original.
+    """
+    if scaler is None:
+        print(
+            "No se ha especificado un escalador. No se aplicará ninguna transformación inversa."
+        )
+        return scaled_data
+
+    return scaler.inverse_transform(scaled_data)
 
 
 def add_transforms(train_ds, val_ds, test_ds, config):
