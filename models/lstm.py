@@ -34,7 +34,7 @@ def build_model(input_size, output_size, config):
         if key not in config:
             raise ValueError(f"Missing required model configuration key: {key}")
 
-    return LSMT(
+    return LSTM(
         input_size=input_size,
         output_size=output_size,
         config=config,
