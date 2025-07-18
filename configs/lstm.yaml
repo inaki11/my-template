@@ -6,7 +6,7 @@ metric:
 
 parameters:
   dataset.name:
-    values: ["baseline-24h-1h-1c"] # 108+43-48h-1h-1c
+    values: ["108+43+3493-24h-1h-1c"] # 108+43-48h-1h-1c
     
   model.name:
     values: ["LSTM"]

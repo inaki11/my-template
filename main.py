@@ -4,6 +4,7 @@ from models import get_model
 from data import (
     apply_scaler,
     inverse_scaler,
+    reshape_input_dims,
     get_validation_set,
     get_dataset,
     get_dataloaders,
@@ -63,12 +64,16 @@ def main(config_path):
     wandb_init(config)
 
     train_set, test_set = load_train_test_set(config)
-    input_size, output_size = train_set[0][0].shape[0], train_set[0][1].shape[0]
+    input_size, output_size = train_set[0][0].shape, train_set[0][1].shape[0]
     logger.info(f"Input size: {input_size}, Output size: {output_size}")
+
+    # si los datos de entrada son multidimensionales, los invierte de (n, len) a (len, n) para que la LSTM los entienda
+    train_set, test_set = reshape_input_dims(train_set, test_set)
 
     train_set_scaled, test_set_scaled, scaler = apply_scaler(
         train_set, test_set, config, debug=True
     )  # Aplica el escalador si es necesario
+
     train_splits, val_splits = get_validation_set(
         train_set_scaled, config
     )  # Devuelve una lista. Si es sin kfold solo un elemento en train y otro en val. Si es k-fold devuelve los k sets.
@@ -84,6 +89,10 @@ def main(config_path):
         )
         train_loader, val_loader, test_loader = get_dataloaders(
             train_ds, val_ds, test_ds, config
+        )
+        # print dimensions of a minibatch
+        print(
+            f"Dimensiones de un minibatch: ({train_loader.batch_size}, {train_loader.dataset[0][0].shape}, {train_loader.dataset[0][1].shape})"
         )
 
         model = get_model(input_size, output_size, config.model).to(

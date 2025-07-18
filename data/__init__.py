@@ -105,17 +105,43 @@ def apply_scaler(train_set, test_set, config, debug=False):
         print(
             "No se ha especificado un escalador. No se aplicará ninguna transformación."
         )
-        return train_set
+        return train_set, test_set, None
+    # Si tiene varias dimensiones el input, hacer flatten y guardar el número de dimensiones
+    ndim = train_set[0][0].shape[0]
+
+    if debug:
+        print(f"Input data has {ndim} dimensions.")
+        print(f"shape: ({train_set[0][0].shape}, {train_set[0][1].shape})")
+        print(
+            f"Antes de aplicar nada de escalado: \ntrain_set: {train_set[0]}\ntest_set: {test_set[0]}"
+        )
+
+    # Hacemos flatten si es necesario
+    if ndim > 1:
+        train_set = [(x.flatten(), y) for x, y in train_set]
+        test_set = [(x.flatten(), y) for x, y in test_set]
+
+        if debug:
+            print("Tras aplicar flatten:")
+            print("train_set:", train_set[0])
+            print("test_set:", test_set[0])
     scaler.fit(train_set)
     train_set_scaled = scaler.transform(train_set)
     test_set_scaled = scaler.transform(test_set)
     if debug:
-        print("antes de aplicar el escalador:")
-        print("train_set:", train_set[0])
-        print("test_set:", test_set[0])
         print("después de aplicar el escalador:")
         print("train_set_scaled:", train_set_scaled[0])
         print("test_set_scaled:", test_set_scaled[0])
+
+    # devolver los datos escalados al formato original
+    if ndim > 1:
+        train_set_scaled = [(x.reshape(ndim, -1), y) for x, y in train_set_scaled]
+        test_set_scaled = [(x.reshape(ndim, -1), y) for x, y in test_set_scaled]
+        if debug:
+            print("después de volver a dar forma:")
+            print("train_set_scaled:", train_set_scaled[0])
+            print("test_set_scaled:", test_set_scaled[0])
+
     return train_set_scaled, test_set_scaled, scaler
 
 
@@ -135,6 +161,24 @@ def inverse_scaler(scaled_data, scaler):
         return scaled_data
 
     return scaler.inverse_transform(scaled_data)
+
+
+def reshape_input_dims(train_set, test_set):
+    if train_set[0][0].ndim == 1:
+        # Si los datos de entrada son unidimensionales, no es necesario reordenar
+        return train_set, test_set
+
+    # Si los datos son multidimensionales, los reordenamos, pasando de (n, len) a (len, n)
+    # Mantenemos el formato [(tensor de entrada, tensor de salida), ...]
+    train_set = [(x.transpose(0, 1), y) for x, y in train_set]
+    test_set = [(x.transpose(0, 1), y) for x, y in test_set]
+
+    print(
+        "Datos Multidimensionales Despues de reordenar las dimensiones: (batch_size, sequence_length, input_size)"
+    )
+    print(f"train_set: ({train_set[0][0].shape}, {train_set[0][1].shape})")
+    print(f"train_set: ({train_set[0][0]}, {train_set[0][1]})")
+    return train_set, test_set
 
 
 def add_transforms(train_ds, val_ds, test_ds, config):
