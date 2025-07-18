@@ -1,5 +1,6 @@
 import torch.nn as nn
 
+
 def build_model(input_size, output_size, config):
     # Extract model parameters from the config (assumes they are under the "model" key)
     # first assert that all required keys are present
@@ -8,7 +9,7 @@ def build_model(input_size, output_size, config):
     for key in required_keys:
         if key not in config:
             raise ValueError(f"Missing required model configuration key: {key}")
-        
+
     num_layers = config.num_layers
     hidden_size = config.hidden_size
     activation_name = config.activation
@@ -24,7 +25,8 @@ def build_model(input_size, output_size, config):
         raise ValueError(f"Unsupported activation: {activation_name}")
 
     layers = []
-
+    # flatten the input
+    layers.append(nn.Flatten())
     # Input layer to first hidden layer
     layers.append(nn.Linear(input_size, hidden_size))
     layers.append(activation_fn())

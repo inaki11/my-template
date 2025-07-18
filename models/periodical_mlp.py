@@ -84,6 +84,7 @@ class PeriodicMLP(nn.Module):
         )
 
     def forward(self, x):
+        x = self.flatten(x)
         x = self.embedding(x)
         x = self.flatten(x)
         x = self.mlp(x)

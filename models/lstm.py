@@ -4,6 +4,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+# En las LSTM al parecer se debe representar la entrada como (batch_size, sequence_length, input_size)
+#  Es decir en mi caso si hay 3 espiras y damos 24h de contexto (batch_size, 24, 3)
+# Soluciono esta forma en el get_dataset()
 class LSTM(nn.Module):
     def __init__(self, input_size, output_size, config):
         super(LSTM, self).__init__()
@@ -17,7 +20,8 @@ class LSTM(nn.Module):
         self.fc = nn.Linear(config.hidden_size, output_size)
 
     def forward(self, x):
-
+        x, _ = self.lstm(x)
+        x = self.fc(x[:, -1, :])
         return x
 
 
@@ -30,12 +34,16 @@ def build_model(input_size, output_size, config):
         "num_layers",
         "dropout",
     ]
+    print(
+        f"lstm module:  input_size: {input_size}, output_size: {output_size}, config: {config}"
+    )
+
     for key in required_keys:
         if key not in config:
             raise ValueError(f"Missing required model configuration key: {key}")
 
     return LSTM(
-        input_size=input_size,
+        input_size=input_size[0],
         output_size=output_size,
         config=config,
     )
