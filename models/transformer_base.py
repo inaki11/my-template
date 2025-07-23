@@ -30,7 +30,7 @@ class TransformerTimeSeries(nn.Module):
     def __init__(self, input_size, output_size, config):
         super().__init__()
 
-        self.embedding_dim = config.embedding_dim  # tamaño del embedding (ej. 64)
+        self.embedding_dim = config.embed_dim_per_head * config.nhead
 
         # Proyecto cada paso temporal (input_size) a embedding_dim
         self.input_proj = nn.Linear(input_size, self.embedding_dim)
@@ -65,7 +65,7 @@ class TransformerTimeSeries(nn.Module):
 def build_model(input_size, output_size, config):
     print(f"Building Transformer_Base model with config:", config)
 
-    required_keys = ["embedding_dim", "nhead", "ff_dim", "num_layers", "dropout"]
+    required_keys = ["embed_dim_per_head", "nhead", "ff_dim", "num_layers", "dropout"]
 
     for key in required_keys:
         if key not in config:
