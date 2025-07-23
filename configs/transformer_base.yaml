@@ -17,9 +17,7 @@ parameters:
 # "embedding_dim", "nhead", "ff_dim", "num_layers", "dropout"
 
   model.embed_dim_per_head:
-    min: 8
-    max: 64
-    distribution: int_uniform
+    values: [4, 8, 16, 32, 64, 128]
 
   model.nhead:
     min: 1
