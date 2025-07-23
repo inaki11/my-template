@@ -6,7 +6,7 @@ metric:
 
 parameters:
   dataset.name:
-    values: ["108+43+3493-24h-1h-1c"] # 108+43-48h-1h-1c
+    values: ["108+43-24h-1h-1c"] # 108+43-48h-1h-1c
     
   model.name:
     values: ["transformer_base"]
@@ -16,9 +16,9 @@ parameters:
   
 # "embedding_dim", "nhead", "ff_dim", "num_layers", "dropout"
 
-  model.embedding_dim:
+  model.embed_dim_per_head:
     min: 8
-    max: 512
+    max: 64
     distribution: int_uniform
 
   model.nhead:
@@ -40,5 +40,4 @@ parameters:
     min: 0.1
     max: 0.5
     distribution: uniform
-  
   
