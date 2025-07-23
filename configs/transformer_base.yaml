@@ -1,0 +1,44 @@
+program: main.py
+method: bayes
+metric:
+  name: Val_loss_mean
+  goal: minimize
+
+parameters:
+  dataset.name:
+    values: ["108+43+3493-24h-1h-1c"] # 108+43-48h-1h-1c
+    
+  model.name:
+    values: ["transformer_base"]
+
+  scaler.name:
+    values: ["quantil", "standard"]
+  
+# "embedding_dim", "nhead", "ff_dim", "num_layers", "dropout"
+
+  model.embedding_dim:
+    min: 8
+    max: 512
+    distribution: int_uniform
+
+  model.nhead:
+    min: 1
+    max: 8
+    distribution: int_uniform
+  
+  model.ff_dim:
+    min: 32
+    max: 512
+    distribution: int_uniform
+  
+  model.num_layers:
+    min: 1
+    max: 6
+    distribution: int_uniform
+  
+  model.dropout:
+    min: 0.1
+    max: 0.5
+    distribution: uniform
+  
+  
