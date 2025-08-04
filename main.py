@@ -138,6 +138,26 @@ def main(config_path):
         outputs = inverse_scaler(outputs, scaler)
         targets = inverse_scaler(targets, scaler)
 
+        ###########
+        # WARNING #
+        ###########   ->  Ñapa histórica para el experimento final de multihorizonte
+        # Computamos el MAE por step si el experimento predice mas de un step
+
+        mae_per_step_folds = []
+        if outputs[0].shape[0] > 1:
+            import importlib
+
+            mae_per_step = importlib.import_module(
+                "metrics.mae_per_step"
+            ).build_metric()
+            res = mae_per_step(outputs, targets)
+            print(f"MAE por step: {res}")
+            mae_per_step_folds.append(res)
+
+        #############
+        #    Fin    #
+        #############
+
         # hacemos plot de las predicciones y los targets, asi como feedback adicional como el MAE
         if config.get("wandb", {}).get("log_plots", False):
             plot_inverse_transformed_outputs_and_mae(outputs, targets, fold)
@@ -171,6 +191,29 @@ def main(config_path):
             wandb.log({f"{key}": value[0]})
         for key, value in folds_test_metrics.items():
             wandb.log({f"{key}": value[0]})
+
+    # Log de mae_per_step_folds no es una lista vacia
+    if mae_per_step_folds:
+        # hacemos la media de mae_per_step_folds
+        mae_per_step_folds = torch.stack(mae_per_step_folds).mean(dim=0)
+        labels = [f"Step {i+1}" for i in range(mae_per_step_folds.shape[0])]
+        data = [
+            {"Step": label, "MAE": mae}
+            for label, mae in zip(labels, mae_per_step_folds.tolist())
+        ]
+
+        # hacemos un log del array de forma que se pueda ver como un gráfico de barras
+        wandb.log(
+            {
+                "MAE per prediction step": wandb.plot.bar(
+                    data,
+                    "Step",
+                    "MAE",
+                    title="MAE per step",
+                )
+            }
+        )
+        print(f"MAE per step: {mae_per_step_folds}")
 
     wandb.finish()
 
