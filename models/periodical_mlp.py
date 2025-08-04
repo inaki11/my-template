@@ -107,6 +107,11 @@ def build_model(input_size, output_size, config):
         if key not in config:
             raise ValueError(f"Missing required model configuration key: {key}")
 
+    if isinstance(input_size, torch.Size):
+        input_size = input_size.numel()  # Convierte torch.Size a un entero
+    if isinstance(output_size, torch.Size):
+        output_size = output_size.numel()
+
     return PeriodicMLP(
         input_size=input_size,
         output_size=output_size,

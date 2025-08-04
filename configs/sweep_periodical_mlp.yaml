@@ -6,10 +6,10 @@ metric:
 
 parameters:
   dataset.name:
-    values: ["baseline-24h-1h"]
+    values: ["baseline-24h-24h-1c"]
     
   model.name:
-    values: ["lstm"]
+    values: ["periodical_mlp"]
 
   scaler.name:
     values: ["quantil", "standard"]
@@ -27,5 +27,18 @@ parameters:
   model.dropout:
     min: 0.1
     max: 0.5
+
+  model.n_frequencies:
+    min: 16
+    max: 64
+    distribution: int_uniform
+
+  model.frequency_init_scale:
+    values: [0.05, 0.2, 0.5, 1, 5]
+
+  model.d_embedding:
+    min: 32
+    max: 256
+    distribution: int_uniform
 
 
