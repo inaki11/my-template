@@ -195,25 +195,15 @@ def main(config_path):
     # Log de mae_per_step_folds no es una lista vacia
     if mae_per_step_folds:
         # hacemos la media de mae_per_step_folds
-        mae_per_step_folds = torch.stack(mae_per_step_folds).mean(dim=0)
-        labels = [f"Step {i+1}" for i in range(mae_per_step_folds.shape[0])]
-        data = [
-            {"Step": label, "MAE": mae}
-            for label, mae in zip(labels, mae_per_step_folds.tolist())
-        ]
-
-        # hacemos un log del array de forma que se pueda ver como un gráfico de barras
-        wandb.log(
-            {
-                "MAE per prediction step": wandb.plot.bar(
-                    data,
-                    "Step",
-                    "MAE",
-                    title="MAE per step",
-                )
-            }
+        values = torch.stack(mae_per_step_folds).mean(dim=0)
+        print(f"MAE per step: {values}")
+        labels = list(range(len(values)))  # Simple integer labels
+        table = wandb.Table(
+            data=[[i, val] for i, val in zip(labels, values)], columns=["Step", "MAE"]
         )
-        print(f"MAE per step: {mae_per_step_folds}")
+        wandb.log(
+            {"Bar Plot": wandb.plot.bar(table, "Step", "MAE", title="MAE per step")}
+        )
 
     wandb.finish()
 
