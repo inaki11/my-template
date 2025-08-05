@@ -5,7 +5,13 @@ Sigue estos pasos para lanzar y ejecutar un sweep en wandb:
 0. **Dependencias**
 
 ```python
-pip install wandb scikit-learn tqdm tensorboard rtdl_num_embeddings omegaconf holidays
+pip install wandb scikit-learn tqdm tensorboard rtdl_num_embeddings omegaconf holidays matplotlib
+```
+
+# Link python a python3 en cluster
+
+```bash
+ln -s /usr/bin/python3 /usr/bin/python
 ```
 
 1. **Crear el sweep:**
@@ -30,6 +36,10 @@ Esto ejecutará hasta 5 runs del sweep especificado. Cada run buscará en un con
 
 Automaticamente crea N agentes que en paralelo se dividen las ejecuciones dadas. 
 En el siguinte ejemplo se establecen 100 ejecuciones del espacio de búsqueda, paralelizado en 5 agentes, para MLP + embedding periódico.
+```python
+python run_sweep.py --config configs/cnn_lstm.yaml --total-runs 100 --processes 1
+```
+
 ```python
 python run_sweep.py --config configs/sweep_periodical_mlp.yaml --total-runs 100 --processes 1
 ```

@@ -23,8 +23,9 @@ from utils.get_experiment_id import get_experiment_id
 from utils.load_checkpoint import load_checkpoint
 from utils.wandb_login import wandb_login
 from utils.wandb_init import wandb_init
-from utils.plot_inverse_transformed_outputs_and_mae import (
+from utils.plots import (
     plot_inverse_transformed_outputs_and_mae,
+    plot_average_mae_per_step,
 )
 import torch
 import wandb
@@ -194,16 +195,7 @@ def main(config_path):
 
     # Log de mae_per_step_folds no es una lista vacia
     if mae_per_step_folds:
-        # hacemos la media de mae_per_step_folds
-        values = torch.stack(mae_per_step_folds).mean(dim=0)
-        print(f"MAE per step: {values}")
-        labels = list(range(len(values)))  # Simple integer labels
-        table = wandb.Table(
-            data=[[i, val] for i, val in zip(labels, values)], columns=["Step", "MAE"]
-        )
-        wandb.log(
-            {"Bar Plot": wandb.plot.bar(table, "Step", "MAE", title="MAE per step")}
-        )
+        plot_average_mae_per_step(mae_per_step_folds)
 
     wandb.finish()
 
