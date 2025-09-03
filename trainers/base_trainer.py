@@ -28,6 +28,7 @@ class BaseTrainer:
         self.val_metrics = {}
         self.fold = fold
         self.stop = False  # Flag for early stopping
+        self.epoch = 0
 
     def train(self, train_loader, val_loader):
         for cb in self.callbacks:
